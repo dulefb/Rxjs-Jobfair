@@ -1,7 +1,8 @@
 const http = require("http");
 const util = require("util");
 const url = require("url");
-const formidable = require("formidable");
+const neo4j = require("neo4j-driver");
+const neo4jDriver=neo4j.driver('bolt://localhost:7687',neo4j.auth.basic('neo4j','dulecar0'));
 const { portNumber } = require("../config/config");
 
 function processRequestBody(requset,callback){
@@ -25,6 +26,7 @@ const server = http.createServer(async(req,res)=>{
     let path = url.parse(req.url,true);
     let queryData = path.query;
     let rootPath = path.pathname.split("/").filter((val,ind)=>ind>0);
+    let neo4jSession = neo4jDriver.session();
     let headers = {
         'Access-Control-Allow-Origin': '*',
         'Accept':'*',
@@ -49,6 +51,10 @@ const server = http.createServer(async(req,res)=>{
     if(req.method.toLowerCase()==='get')
     {
         //get method
+        let smh = await neo4jSession.run("match (n) return n");
+        res.writeHead(200,"OK",headers);
+        res.write(JSON.stringify(smh.records));
+        res.end();
     }
     if(req.method.toLowerCase()==='post')
     {
@@ -67,4 +73,5 @@ const server = http.createServer(async(req,res)=>{
 server.listen(portNumber,()=>{
     console.log("Listening on port "+portNumber+"...\n\n");
     //start here
+    neo4jDriver.close();
 });
