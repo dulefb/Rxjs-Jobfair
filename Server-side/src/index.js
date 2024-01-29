@@ -2,8 +2,8 @@ const http = require("http");
 const util = require("util");
 const url = require("url");
 const neo4j = require("neo4j-driver");
-const neo4jDriver=neo4j.driver('bolt://localhost:7687',neo4j.auth.basic('neo4j','dulecar0'));
-const { portNumber } = require("../config/config");
+const neo4jDriver=neo4j.driver(neo4jDB,neo4j.auth.basic(neo4jUsername,neo4jPassword));
+const { portNumber, neo4jDB, neo4jUsername, neo4jPassword } = require("../config/config");
 
 function processRequestBody(requset,callback){
     let chunks = [];
