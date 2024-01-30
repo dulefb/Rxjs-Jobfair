@@ -2,7 +2,7 @@ const http = require("http");
 const util = require("util");
 const url = require("url");
 const neo4j = require("neo4j-driver");
-const neo4jDriver=neo4j.driver(neo4jDB,neo4j.auth.basic(neo4jUsername,neo4jPassword));
+let neo4jDriver;
 const { portNumber, neo4jDB, neo4jUsername, neo4jPassword } = require("../config/config");
 
 function processRequestBody(requset,callback){
@@ -61,6 +61,32 @@ const server = http.createServer(async(req,res)=>{
                     let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
                         email:$email,\
                         password:$password\
+                    })\
+                    return ent`,{
+                        email:queryData.email,
+                        password:queryData.password
+                    });
+                    if(dbResponse){
+                        res.writeHead(200,'OK',headers);
+                        res.write(JSON.stringify(dbResponse.records[0]._fields[0].properties));
+                        res.end();
+                    }
+                    else{
+                        res.writeHead(404,'Error',headers);
+                        res.write("User not found...");
+                        res.end();
+                    }
+                }
+                else if(queryData.label!=='KORISNIK' || queryData!=='KOMPANIJA'){
+                    res.writeHead(404,'Error',headers);
+                    res.write("Invalid request...");
+                    res.end();
+                }
+            }
+            else if(queryData.email){
+                if(queryData.label==='KORISNIK' || queryData.label==='KORISNIK'){
+                    let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
+                        email:$email
                     })\
                     return ent`,{
                         email:queryData.email,
@@ -173,6 +199,16 @@ const server = http.createServer(async(req,res)=>{
     if(req.method.toLowerCase()==='delete')
     {
         //delete method
+        if(rootPath[0]==='user'){
+            if(queryData.email && queryData.label){
+                let emailTaken = await neo4jSession.run(`match (entity:${queryData.label} {
+                    email:$email\
+                })\
+                detach delete entity`,{
+                    email:queryData.email
+                });
+            }
+        }
     }
     if(req.method.toLowerCase()==='put')
     {
@@ -183,5 +219,5 @@ const server = http.createServer(async(req,res)=>{
 server.listen(portNumber,()=>{
     console.log("Listening on port "+portNumber+"...\n\n");
     //start here
-    neo4jDriver.close();
+    neo4jDriver=neo4j.driver(neo4jDB,neo4j.auth.basic(neo4jUsername,neo4jPassword));
 });
