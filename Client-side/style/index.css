@@ -1,0 +1,242 @@
+.showDisplay{
+    display: inline-block;
+}
+
+.hideDisplay{
+    display: none;
+}
+
+.main-container{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    height:100%;
+}
+.header{
+    height: 60px;
+    background-color:#90a17d;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.header a{
+    text-decoration: none;
+    color: black;
+    font-size: larger;
+    font-style: bold;
+}
+.header a:hover{
+    color: whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+}
+
+.middle{
+    height: 100%;
+    background-color:#eeeeee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.footer{
+    height: 150px;
+    background-color:#90a17d;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content:space-around;
+    align-items: center;
+}
+
+.footer > div{
+    width: 50%;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.footer-links > a, .footer-info > label{
+    align-self: center;
+    font-size: larger;
+    font-style: bold;
+}
+.footer-links > a{
+    text-decoration: none;
+    color: black;
+}
+
+.footer-links > a:hover{
+    color: whitesmoke;
+    border-bottom: 1px solid whitesmoke;
+}
+
+/* Dropdown Button */
+.dropbtn {
+    background-color: #3498DB;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* Dropdown button on hover & focus */
+  .dropbtn:hover, .dropbtn:focus {
+    background-color: #2980B9;
+  }
+  
+  /* The container <div> - needed to position the dropdown content */
+  .dropdown {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Dropdown Content (Hidden by Default) */
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  /* Links inside the dropdown */
+  .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  /* Change color of dropdown links on hover */
+  .dropdown-content a:hover {background-color: #db9595;}
+  
+  /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+  .show {display:block;}
+
+.divReceptParent{
+    width:50%;
+    /*
+    display: flex;
+    flex-direction: column;
+    align-content: space-around;
+    flex-wrap: wrap;
+    */
+}
+
+.divReceptParent > div{
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    justify-content:left;
+    /*align-items: center;*/
+}
+
+.divReceptParent > div > label{
+    font-size: larger;
+}
+
+.search-bar{
+    position: relative;
+    display: inline-block;
+}
+
+#search-bar-dropdown-show{
+    position: absolute;
+    background-color: #f1f1f1;
+    min-width: 350px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.search-bar-dropdown{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    background-color: #db9595;
+    border-radius: 5px;
+    width: 95%;
+}
+
+.search-bar-dropdown > input[type='name']{
+    height: 20px;
+    min-width: 190px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.divSearchSingleRecept{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: left;
+    padding: 7px;
+    width: 90%;
+}
+
+.divSearchSingleRecept > img{
+    height: 30px;
+    width: 30px;
+    border-radius: 6px;
+}
+
+.divSearchSingleRecept:hover{
+    background-color: #3498DB;
+}
+
+@media only screen and (max-width: 768px) {
+    .header a{
+        font-size:medium;
+    }
+    
+    #search-bar-dropdown-show{
+        font-size: medium;
+        min-width:300px;
+    }
+
+    .search-bar-dropdown{
+        width: 96%;
+    }
+
+    .search-bar-dropdown > input[type='name']{
+        min-width:150px;
+    }
+
+    .dropdown-content{
+        min-width: 100px;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    /* For mobile phones: */
+    .header a{
+        font-size:x-small;
+        text-align: center;
+    }
+
+    .footer-links > a, .footer-info > label{
+        align-self: center;
+        font-size: medium;
+    }
+
+    #search-bar-dropdown-show{
+        font-size: small;
+        min-width:100px;
+    }
+
+    .search-bar-dropdown{
+        width: 90%;
+    }
+
+    .search-bar-dropdown > input[type='name']{
+        min-width:150px;
+    }
+  }

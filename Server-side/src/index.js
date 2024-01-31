@@ -59,6 +59,10 @@ const server = http.createServer(async(req,res)=>{
             res.writeHead(200,'OK',headers);
             res.end();
         }
+        else if(rootPath[0]=='user-konkurs'){
+            res.writeHead(200,'OK',headers);
+            res.end();
+        }
         
     }
     if(req.method.toLowerCase()==='get')
@@ -93,7 +97,7 @@ const server = http.createServer(async(req,res)=>{
                 }
             }
             else if(queryData.email){
-                if(queryData.label==='KORISNIK' || queryData.label==='KORISNIK'){
+                if(queryData.label==='KORISNIK' || queryData.label==='KOMPANIJA'){
                     let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
                         email:$email
                     })\
@@ -144,6 +148,30 @@ const server = http.createServer(async(req,res)=>{
                 }
             });
         }
+        else if(rootPath[0]==='user-konkurs'){
+            if(queryData.skills){
+                let allData = await neo4jSession.run(`match(konkurs:KONKURS)\
+                where konkurs.job contains $skills
+                return konkurs`,{
+                    skills:queryData.skills
+                });
+                if(allData.records[0]!==undefined){
+                    res.writeHead(200,'OK',headers);
+                    res.write(JSON.stringify(allData.records));
+                    res.end();
+                }
+                else{
+                    res.writeHead(404,'Error',headers);
+                    res.write('Invalid request...');
+                    res.end();
+                }
+            }
+            else{
+                res.writeHead(404,'Error',headers);
+                res.write('Invalid request...');
+                res.end();
+            }
+        }
         else{
             res.writeHead(404,'Error',headers);
             res.write('Invalid request...');
@@ -174,12 +202,14 @@ const server = http.createServer(async(req,res)=>{
                             name:$name,\
                             lastname:$lastname,\
                             skills:$skills,\
+                            userCV:$userCV,\
                             email:$email,\
                             password:$password\
                         })`,{
                             name:dataObj.name,
                             lastname:dataObj.lastname,
                             skills:dataObj.skills,
+                            userCV:dataObj.userCV,
                             email:dataObj.email,
                             password:dataObj.password
                         });
@@ -352,6 +382,11 @@ const server = http.createServer(async(req,res)=>{
                 res.end();
             });
         }
+        else{
+            res.writeHead(404,'Error',headers);
+            res.write('Invalid request...');
+            res.end();
+        }
     }
     if(req.method.toLowerCase()==='put')
     {
@@ -363,5 +398,4 @@ server.listen(portNumber,()=>{
     console.log("Listening on port "+portNumber+"...\n");
     //start here
     neo4jDriver=neo4j.driver(neo4jDB,neo4j.auth.basic(neo4jUsername,neo4jPassword));
-    console.log('Works-_-');
 });
