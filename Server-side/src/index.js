@@ -4,6 +4,7 @@ const url = require("url");
 const neo4j = require("neo4j-driver");
 let neo4jDriver;
 const { portNumber, neo4jDB, neo4jUsername, neo4jPassword } = require("../config/config");
+const { ok } = require("assert");
 
 function processRequestBody(requset,callback){
     let chunks = [];
@@ -119,7 +120,7 @@ const server = http.createServer(async(req,res)=>{
     if(req.method.toLowerCase()==='post')
     {
         //post method
-        if(rootPath[0]=='user'){
+        if(rootPath[0]==='user'){
             if(queryData.label==='KORISNIK'){
                 processRequestBody(req,async (dataObj)=>{
 
@@ -190,6 +191,11 @@ const server = http.createServer(async(req,res)=>{
                 });
             }
         }
+        else if(rootPath[0]==='konkurs'){
+            processRequestBody(req,async (dataObj)=>{
+                let dbResponse = await neo4jSession.run()
+            })
+        }
         else{
             res.writeHead(404,'Error',headers);
             res.write('Invalid request...');
@@ -201,12 +207,20 @@ const server = http.createServer(async(req,res)=>{
         //delete method
         if(rootPath[0]==='user'){
             if(queryData.email && queryData.label){
-                let emailTaken = await neo4jSession.run(`match (entity:${queryData.label} {
+                let userEmail = await neo4jSession.run(`match (entity:${queryData.label} {
                     email:$email\
                 })\
                 detach delete entity`,{
                     email:queryData.email
                 });
+                res.writeHead(200,"OK",headers);
+                res.write('User deleted successfully');
+                res.end();
+            }
+            else{
+                res.writeHead(200,"OK",headers);
+                res.write('User deleted successfully');
+                res.end();
             }
         }
     }
@@ -217,7 +231,8 @@ const server = http.createServer(async(req,res)=>{
 });
 
 server.listen(portNumber,()=>{
-    console.log("Listening on port "+portNumber+"...\n\n");
+    console.log("Listening on port "+portNumber+"...\n");
     //start here
     neo4jDriver=neo4j.driver(neo4jDB,neo4j.auth.basic(neo4jUsername,neo4jPassword));
+    console.log('Works-_-');
 });
