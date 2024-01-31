@@ -1,6 +1,5 @@
 import { fromEvent, map, switchMap, scan, take, Observable,zip, from, Subject, combineLatest, takeUntil, forkJoin, delay, filter, debounceTime } from "rxjs";
 import { numberOfTakes } from "./constants";
-import { drawReceptPage, drawSearchRecept } from "./drawFunctions";
 
 
 export function removeChildren(parent:Node,child:NodeListOf<Element>){
