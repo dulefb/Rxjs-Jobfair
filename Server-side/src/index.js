@@ -51,12 +51,20 @@ const server = http.createServer(async(req,res)=>{
             res.writeHead(200,'OK',headers);
             res.end();
         }
+        else if(rootPath[0]=='prijavi-na-konkurs'){
+            res.writeHead(200,'OK',headers);
+            res.end();
+        }
+        else if(rootPath[0]=='konkurs'){
+            res.writeHead(200,'OK',headers);
+            res.end();
+        }
         
     }
     if(req.method.toLowerCase()==='get')
     {
         //get method
-        if(rootPath[0]=='user'){
+        if(rootPath[0]==='user'){
             if(queryData.email && queryData.password){
                 if(queryData.label==='KORISNIK' || queryData.label==='KORISNIK'){
                     let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
@@ -110,6 +118,31 @@ const server = http.createServer(async(req,res)=>{
                     res.end();
                 }
             }
+        }
+        else if(rootPath[0]==='konkurs'){
+            processRequestBody(req,async (dataObj)=>{
+                let dbResponse = await neo4jSession.run(`match (kompanija:KOMPANIJA{\
+                    email:$email\
+                })-[:OBJAVLJUJE]->(konkurs:KONKURS{\
+                    job:$job,\
+                    company:$company\
+                })\
+                return konkurs`,{
+                    email:dataObj.email,
+                    job:dataObj.job,
+                    company:dataObj.company
+                });
+                if(dbResponse.records[0]!==undefined){
+                    res.writeHead(200,'OK',headers);
+                    res.write(JSON.stringify(dbResponse.records));
+                    res.end();
+                }
+                else{
+                    res.writeHead(404,'Error',headers);
+                    res.write('Invalid request...');
+                    res.end();
+                }
+            });
         }
         else{
             res.writeHead(404,'Error',headers);
@@ -193,8 +226,89 @@ const server = http.createServer(async(req,res)=>{
         }
         else if(rootPath[0]==='konkurs'){
             processRequestBody(req,async (dataObj)=>{
-                let dbResponse = await neo4jSession.run()
-            })
+                let alreadyExists = await neo4jSession.run(`match (konkurs:KONKURS{\
+                    job:$job,\
+                    company:$company,\
+                    money:$money\
+                })\
+                return konkurs`,{
+                    job:dataObj.job,
+                    company:dataObj.company,
+                    money:dataObj.money
+                });
+
+                let companyExists = await neo4jSession.run(`match (kompanija:KOMPANIJA{\
+                    name:$company\
+                })\
+                return kompanija`,{
+                    company:dataObj.company
+                });
+                console.log(companyExists);
+                if(alreadyExists.records[0]!==undefined){
+                    res.writeHead(404,'Error',headers);
+                    res.write('Konkurs za ovaj posao je vec obavljen');
+                    res.end();
+                }
+                else if(companyExists.records[0]===undefined){
+                    res.writeHead(404,'Error',headers);
+                    res.write('Kompanija ne postoji...');
+                    res.end();
+                }
+                else{
+                    let dbResponse = await neo4jSession.run(`match (kompanija:KOMPANIJA{\
+                    name:$company})\
+                    create (konkurs:KONKURS{\
+                        job:$job,\
+                        company:$company,\
+                        money:$money\
+                    })<-[obj:OBJAVLJUJE]-(kompanija)`,{
+                        job:dataObj.job,
+                        company:dataObj.company,
+                        money:dataObj.money
+                    });
+                    res.writeHead(200,"OK",headers);
+                    res.write("Konkurs za posao je objavljen");
+                    res.end();
+                }
+            });
+        }
+        else if(rootPath[0]==='prijavi-na-konkurs'){
+            if(queryData.email){
+                processRequestBody(req,async (dataObj)=>{
+                    let dbResponse = await neo4jSession.run(`match (user:KORISNIK{\
+                    email:$email\
+                    }),\
+                    (konkurs:KONKURS{\
+                    job:$job,\
+                    company:$company,\
+                    money:$money\
+                    })\
+                    create (user)-[:PRIJAVI_SE{userCV:$userCV}]->(konkurs)\
+                    return user.email as email,konkurs.job as job`,{
+                        email:queryData.email,
+                        job:dataObj.job,
+                        company:dataObj.company,
+                        money:dataObj.money,
+                        userCV:dataObj.userCV
+                    });
+
+                    if(dbResponse.records[0]!==undefined){
+                        res.writeHead(200,"OK",headers);
+                        res.write("Prijava na konkurs je uspesna...");
+                        res.end();
+                    }
+                    else{
+                        res.writeHead(404,'Error',headers);
+                        res.write('Invalid request...');
+                        res.end();
+                    }
+                });
+            }
+            else{
+                res.writeHead(404,'Error',headers);
+                res.write('Invalid request...');
+                res.end();
+            }
         }
         else{
             res.writeHead(404,'Error',headers);
@@ -222,6 +336,21 @@ const server = http.createServer(async(req,res)=>{
                 res.write('User deleted successfully');
                 res.end();
             }
+        }
+        else if(rootPath[0]==='konkurs'){
+            processRequestBody(req,async (dataObj)=>{
+                let dbResponse = await neo4jSession.run(`match (konkurs:KONKURS{\
+                    job:$job,\
+                    company:$company\
+                })\
+                detach delete konkurs`,{
+                    job:dataObj.job,
+                    company:dataObj.company
+                });
+                res.writeHead(200,"OK",headers);
+                res.write('Konkurs deleted successfully');
+                res.end();
+            });
         }
     }
     if(req.method.toLowerCase()==='put')
