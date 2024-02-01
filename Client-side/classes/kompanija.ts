@@ -1,4 +1,6 @@
-export class Kompanija{
+import { Entity } from "./entity";
+
+export class Kompanija extends Entity{
     name:string;
     description:string;
     city:string;
@@ -6,6 +8,7 @@ export class Kompanija{
     password:string;
 
     constructor(){
+        super("KOMPANIJA");
         this.name=null;
         this.description=null;
         this.city=null;

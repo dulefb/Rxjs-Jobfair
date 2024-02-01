@@ -37,7 +37,7 @@ export function setUpSignin(){
             else{
                 getUserWithEmail(selectedLabel==="KORISNIK" ? user.email : kompanija.email,selectedLabel)
                     .subscribe(next=>{
-                        if(!next){
+                        if(next){
                             alert("Korisnik sa ovo email adresom vec postoji...");
                         }
                         else{
@@ -48,7 +48,7 @@ export function setUpSignin(){
                                     }
                                     else{
                                         sessionStorage.setItem("current-user-label",selectedLabel);
-                                        sessionStorage.setItem("current-user",JSON.stringify(selectedLabel==="KORISNIK" ? user : kompanija));
+                                        sessionStorage.setItem("current-user",selectedLabel==="KORISNIK" ? user.email : kompanija.email);
                                         alert('Uspesno ste registrovani.');
                                         document.location.reload();
                                     }

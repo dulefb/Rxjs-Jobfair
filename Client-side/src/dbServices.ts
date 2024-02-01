@@ -71,8 +71,8 @@ export function getUserWithEmail(email:string,label:string) : Observable<void | 
     return from(user);
 }
 
-export function getUserWithEmailAndPassword(email:string,password:string,label:string) : Observable<User>{
-    const user = fetch(userURL+"?email="+email+"&password="+password+"&label="+label,{method:"GET"})
+export function getUserWithEmailAndPassword(email:string,password:string) : Observable<User | Kompanija>{
+    const user = fetch(userURL+"?email="+email+"&password="+password,{method:"GET"})
                     .then(response=>{
                         if(!response.ok){
                             return null;

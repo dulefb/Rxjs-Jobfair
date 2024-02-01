@@ -29,7 +29,7 @@ function removeLinkFromClassElement(class_element:string,link_href:string) : voi
 
 
 export function userFilter(){
-    let currentUser = JSON.parse(sessionStorage.getItem("current-user"));
+    let currentUser = sessionStorage.getItem("current-user");
     let currentUserLabel = sessionStorage.getItem("current-user-label");
 
     if(currentUser!==null){
@@ -50,7 +50,6 @@ export function userFilter(){
     const kreiraj_nalog = document.querySelector("a[href='#kreiraj-nalog']");
     const control$ = new Subject<string>();
     if(kreiraj_nalog!==null){
-        console.log(kreiraj_nalog);
         kreiraj_nalog.addEventListener("click",()=>{
             removeChildren(document.querySelector(".middle"),document.querySelectorAll(".middle > div"));
             drawSignup(document.querySelector(".middle"));
@@ -65,7 +64,7 @@ export function userFilter(){
         prijavi_se.addEventListener("click",()=>{
             removeChildren(document.querySelector(".middle"),document.querySelectorAll(".middle > div"));
             drawLogin(document.querySelector(".middle"));
-            setUpLogin(login$);
+            setUpLogin();
         });
     }
 

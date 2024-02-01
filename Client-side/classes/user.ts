@@ -1,4 +1,6 @@
-export class User{
+import { Entity } from "./entity";
+
+export class User extends Entity{
     name:string;
     lastname:string;
     email:string;
@@ -7,6 +9,7 @@ export class User{
     userCV:string;
 
     constructor(){
+        super("KORISNIK");
         this.name=null;
         this.lastname=null;
         this.email=null;

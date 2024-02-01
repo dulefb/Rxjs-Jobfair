@@ -70,35 +70,28 @@ const server = http.createServer(async(req,res)=>{
         //get method
         if(rootPath[0]==='user'){
             if(queryData.email && queryData.password){
-                if(queryData.label==='KORISNIK' || queryData.label==='KORISNIK'){
-                    let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
-                        email:$email,\
-                        password:$password\
-                    })\
-                    return ent`,{
-                        email:queryData.email,
-                        password:queryData.password
-                    });
-                    if(dbResponse){
-                        res.writeHead(200,'OK',headers);
-                        res.write(JSON.stringify(dbResponse.records[0]._fields[0].properties));
-                        res.end();
-                    }
-                    else{
-                        res.writeHead(404,'Error',headers);
-                        res.write("User not found...");
-                        res.end();
-                    }
+                let dbResponse = await neo4jSession.run(`match(ent{\
+                    email:$email,\
+                    password:$password\
+                })\
+                return ent`,{
+                    email:queryData.email,
+                    password:queryData.password
+                });
+                if(dbResponse.records.length>0){
+                    res.writeHead(200,'OK',headers);
+                    res.write(JSON.stringify(dbResponse.records[0]._fields[0].properties));
+                    res.end();
                 }
-                else if(queryData.label!=='KORISNIK' || queryData!=='KOMPANIJA'){
+                else{
                     res.writeHead(404,'Error',headers);
-                    res.write("Invalid request...");
+                    res.write("User not found...");
                     res.end();
                 }
             }
             else if(queryData.email){
                 if(queryData.label==='KORISNIK' || queryData.label==='KOMPANIJA'){
-                    let dbResponse = await neo4jSession.run(`match(ent:${queryData.label}{\
+                    let dbResponse = await neo4jSession.run(`match(ent{\
                         email:$email
                     })\
                     return ent`,{
