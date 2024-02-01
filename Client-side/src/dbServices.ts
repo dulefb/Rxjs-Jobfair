@@ -1,4 +1,4 @@
-import { Observable, from, take, takeLast, map, toArray, mergeMap, filter } from "rxjs";
+import { Observable, from, take, takeLast, map, toArray, mergeMap, filter, of } from "rxjs";
 import { User } from "../classes/user";
 import { removeChildren } from "./pocetnaEvents";
 import { userURL } from "./constants";
@@ -9,7 +9,7 @@ export function postUser(user:any,label:string) : Observable<boolean | void>{
     let formBody = new URLSearchParams();
     if(label==="KORISNIK"){
         formBody.append('name',user.name);
-        formBody.append('last_name',user.lastname);
+        formBody.append('lastname',user.lastname);
         formBody.append('email',user.email);
         formBody.append('password',user.password);
         formBody.append('skills',user.skills);
@@ -34,7 +34,7 @@ export function postUser(user:any,label:string) : Observable<boolean | void>{
                         return false;
                     }
                     else{
-                        return true;
+                       return true;
                     }
                 }).catch(err=>console.log(err));
 
@@ -56,14 +56,14 @@ export function getUser(email:string,label:string) : Observable<User>{
     return from(user).pipe(take(1));
 }
 
-export function getUserWithEmail(email:string,label:string) : Observable<User>{
+export function getUserWithEmail(email:string,label:string) : Observable<void | boolean>{
     const user = fetch(userURL+"?email="+email+"&label="+label,{method:"GET"})
                     .then(response=>{
                         if(!response.ok){
-                            return null;
+                            return false;
                         }
                         else{
-                            return response.json();
+                            return true;
                         }
                     })
                     .catch(err=>console.log(err));
@@ -87,14 +87,14 @@ export function getUserWithEmailAndPassword(email:string,password:string,label:s
 }
 
 
-export function deleteUser(email:string,label:string) : Observable<boolean | void>{
+export function deleteUser(email:string,label:string) : Observable<string>{
     const userResp = fetch(userURL+"?email="+email+"&label="+label,{method:"DELETE"})
                     .then(response=>{
                         if(!response.ok){
-                            return false;
+                            return null;
                         }
                         else{
-                            return true;
+                            return response.json();
                         }
                     }).catch(err=>console.log(err));
     

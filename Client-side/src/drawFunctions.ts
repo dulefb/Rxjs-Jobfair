@@ -4,6 +4,7 @@ import { filter,Subject } from "rxjs";
 import { setUpLogin } from "./loginEvents";
 import { setUpSignin } from "./signupEvents";
 import {  removeChildren } from "./pocetnaEvents";
+import { Kompanija } from "../classes/kompanija";
 
 function addLinkToClassElement(class_element:string,href:string,class_name:string,text:string,id_value:string=null) : void{
     const link=document.createElement("a");
@@ -28,8 +29,8 @@ function removeLinkFromClassElement(class_element:string,link_href:string) : voi
 
 
 export function userFilter(){
-    let currentUser = sessionStorage.getItem("current-user");
-    let currentUserID = sessionStorage.getItem("current-user-id");
+    let currentUser = JSON.parse(sessionStorage.getItem("current-user"));
+    let currentUserLabel = sessionStorage.getItem("current-user-label");
 
     if(currentUser!==null){
         addLinkToClassElement(".header","#novi-recept","header-item","NOVI RECEPT");
@@ -49,11 +50,11 @@ export function userFilter(){
     const kreiraj_nalog = document.querySelector("a[href='#kreiraj-nalog']");
     const control$ = new Subject<string>();
     if(kreiraj_nalog!==null){
-
+        console.log(kreiraj_nalog);
         kreiraj_nalog.addEventListener("click",()=>{
             removeChildren(document.querySelector(".middle"),document.querySelectorAll(".middle > div"));
             drawSignup(document.querySelector(".middle"));
-            setUpSignin(control$);
+            setUpSignin();
         });
     }
 
@@ -323,14 +324,14 @@ export function drawLogin(parent_node:HTMLElement){
 }
 
 
-export function drawUserProfile(user:User) : HTMLDivElement{
+export function drawUserProfile(user:User | Kompanija) : HTMLDivElement{
     let parent = document.querySelector(".middle");
     let divUserProfile = document.createElement("div");
     divUserProfile.classList.add("divUserProfile");
 
     let userInfoNaslov = document.createElement("h2");
     userInfoNaslov.classList.add("userInfoNaslov");
-    if(sessionStorage.getItem("current-user")===user.email){
+    if(JSON.parse(sessionStorage.getItem("current-user")).email===user.email){
         userInfoNaslov.innerHTML="Vas profil";
     }
     else{
@@ -350,7 +351,7 @@ export function drawUserProfile(user:User) : HTMLDivElement{
     labelName.innerHTML="Ime: ";
     divUserName.appendChild(labelName);
     let labelNameValue = document.createElement("div");
-    labelNameValue.innerHTML=user.name+" "+user.lastname;
+    labelNameValue.innerHTML=user.name;
     divUserName.appendChild(labelNameValue); 
     divUserProfileInfoData.appendChild(divUserName);
 
@@ -370,7 +371,7 @@ export function drawUserProfile(user:User) : HTMLDivElement{
     labelCity.innerHTML="Skills: ";
     divUserCity.appendChild(labelCity);
     let labelCityValue = document.createElement("div");
-    labelCityValue.innerHTML=user.skills;
+    // labelCityValue.innerHTML=user.skills;
     divUserCity.appendChild(labelCityValue); 
     divUserProfileInfoData.appendChild(divUserCity);
 
@@ -380,7 +381,7 @@ export function drawUserProfile(user:User) : HTMLDivElement{
     labelDate.innerHTML="Datum rodjenja: ";
     divUserDate.appendChild(labelDate);
     let labelDateValue = document.createElement("div");
-    labelDateValue.innerHTML=user.userCV;
+    // labelDateValue.innerHTML=user.userCV;
     divUserDate.appendChild(labelDateValue); 
     divUserProfileInfoData.appendChild(divUserDate);
 

@@ -12,5 +12,6 @@ export class User{
         this.email=null;
         this.password=null;
         this.skills=null;
+        this.userCV=null;
     }
 }
