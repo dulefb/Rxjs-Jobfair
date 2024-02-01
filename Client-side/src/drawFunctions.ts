@@ -3,7 +3,7 @@ import { User } from "../classes/user";
 import { filter,Subject } from "rxjs";
 import { setUpLogin } from "./loginEvents";
 import { setUpSignin } from "./signupEvents";
-import {  removeChildren } from "./pocetnaEvents";
+import {  addNewKonkursEvent, removeChildren } from "./pocetnaEvents";
 import { Kompanija } from "../classes/kompanija";
 
 function addLinkToClassElement(class_element:string,href:string,class_name:string,text:string,id_value:string=null) : void{
@@ -29,11 +29,13 @@ function removeLinkFromClassElement(class_element:string,link_href:string) : voi
 
 
 export function userFilter(){
-    let currentUser = sessionStorage.getItem("current-user");
+    let currentUser = JSON.parse(sessionStorage.getItem("current-user"));
     let currentUserLabel = sessionStorage.getItem("current-user-label");
 
     if(currentUser!==null){
-        addLinkToClassElement(".header","#novi-recept","header-item","NOVI RECEPT");
+        if(currentUserLabel==="KOMPANIJA"){
+            addLinkToClassElement(".header","#novi-konkurs","header-item","NOVI KONKURS");
+        }
         addLinkToClassElement(".header","#profil","header-item","PROFIL");
         addLinkToClassElement(".header","#odjavi-se","header-item","ODJAVI SE");
         removeLinkFromClassElement(".header","#prijavi-se");
@@ -44,7 +46,9 @@ export function userFilter(){
         addLinkToClassElement(".header","#kreiraj-nalog","header-item","KREIRAJ NALOG");
         removeLinkFromClassElement(".header","#profil");
         removeLinkFromClassElement(".header","#odjavi-se");
-        removeLinkFromClassElement(".header","#novi-recept");
+        if(document.querySelector("a[href='#novi-konkurs']")!==undefined){
+            removeLinkFromClassElement(".header","#novi-recept");
+        }
     }
 
     const kreiraj_nalog = document.querySelector("a[href='#kreiraj-nalog']");
@@ -77,9 +81,21 @@ export function userFilter(){
             document.location.reload();
         });
     }
+
     const profil = <HTMLElement>document.querySelector("a[href='#profil']");
     if(profil!==null){
-        //viewUserProfile(currentUser,profil);
+        profil.onclick=()=>{
+            drawUserProfile(currentUser);
+        }
+    }
+
+    const noviKonkurs = <HTMLElement>document.querySelector("a[href='#novi-konkurs']");
+    if(noviKonkurs!==null){
+        noviKonkurs.onclick=()=>{
+            removeChildren(document.querySelector(".middle"),document.querySelectorAll(".middle > div"));
+            drawNewKonkurs(document.querySelector(".middle"));
+            addNewKonkursEvent();
+        }
     }
 }
 
@@ -323,7 +339,7 @@ export function drawLogin(parent_node:HTMLElement){
 }
 
 
-export function drawUserProfile(user:User | Kompanija) : HTMLDivElement{
+export function drawUserProfile(user:any) : void{
     let parent = document.querySelector(".middle");
     let divUserProfile = document.createElement("div");
     divUserProfile.classList.add("divUserProfile");
@@ -341,6 +357,20 @@ export function drawUserProfile(user:User | Kompanija) : HTMLDivElement{
     let divUserProfileInfo = document.createElement("div");
     divUserProfileInfo.classList.add("divUserProfileInfo");
 
+    if(sessionStorage.getItem("current-user-label")==="KORISNIK"){
+        drawKorisnikProfile(divUserProfileInfo,user);
+    }
+    else{
+        drawKompanijaProfile(divUserProfileInfo,user);
+    }
+    
+    divUserProfile.appendChild(divUserProfileInfo);
+
+    parent.appendChild(divUserProfile);
+}
+
+function drawKorisnikProfile(parent:HTMLElement,user:User){
+
     let divUserProfileInfoData = document.createElement("div");
     divUserProfileInfoData.classList.add("divUserProfileInfoData");
     //podaci
@@ -348,6 +378,53 @@ export function drawUserProfile(user:User | Kompanija) : HTMLDivElement{
     let labelName = document.createElement("label");
     labelName.classList.add("main-label");
     labelName.innerHTML="Ime: ";
+    divUserName.appendChild(labelName);
+    let labelNameValue = document.createElement("div");
+    labelNameValue.innerHTML=user.name + " "+user.lastname;
+    divUserName.appendChild(labelNameValue); 
+    divUserProfileInfoData.appendChild(divUserName);
+
+    let divUserEmail = document.createElement("div");
+    let labelEmail = document.createElement("label");
+    labelEmail.classList.add("main-label");
+    labelEmail.innerHTML="Email: ";
+    divUserEmail.appendChild(labelEmail);
+    let labelEmailValue = document.createElement("div");
+    labelEmailValue.innerHTML=user.email;
+    divUserEmail.appendChild(labelEmailValue); 
+    divUserProfileInfoData.appendChild(divUserEmail);
+
+    let divUserSkills = document.createElement("div");
+    let labelSkills = document.createElement("label");
+    labelSkills.classList.add("main-label");
+    labelSkills.innerHTML="Skills: ";
+    divUserSkills.appendChild(labelSkills);
+    let labelSkillsValue = document.createElement("div");
+    labelSkillsValue.innerHTML=user.skills;
+    divUserSkills.appendChild(labelSkillsValue); 
+    divUserProfileInfoData.appendChild(divUserSkills);
+
+    let divUserCV = document.createElement("div");
+    let labelCV = document.createElement("label");
+    labelCV.classList.add("main-label");
+    labelCV.innerHTML="CV korisnika: ";
+    divUserCV.appendChild(labelCV);
+    let labelCVValue = document.createElement("div");
+    labelCVValue.innerHTML=user.userCV;
+    divUserCV.appendChild(labelCVValue); 
+    divUserProfileInfoData.appendChild(divUserCV);
+
+    parent.appendChild(divUserProfileInfoData);
+}
+
+function drawKompanijaProfile(parent:HTMLElement,user:Kompanija){
+    let divUserProfileInfoData = document.createElement("div");
+    divUserProfileInfoData.classList.add("divUserProfileInfoData");
+    //podaci
+    let divUserName = document.createElement("div");
+    let labelName = document.createElement("label");
+    labelName.classList.add("main-label");
+    labelName.innerHTML="Naziv: ";
     divUserName.appendChild(labelName);
     let labelNameValue = document.createElement("div");
     labelNameValue.innerHTML=user.name;
@@ -367,35 +444,64 @@ export function drawUserProfile(user:User | Kompanija) : HTMLDivElement{
     let divUserCity = document.createElement("div");
     let labelCity = document.createElement("label");
     labelCity.classList.add("main-label");
-    labelCity.innerHTML="Skills: ";
+    labelCity.innerHTML="Grad: ";
     divUserCity.appendChild(labelCity);
     let labelCityValue = document.createElement("div");
-    // labelCityValue.innerHTML=user.skills;
+    labelCityValue.innerHTML=user.city;
     divUserCity.appendChild(labelCityValue); 
     divUserProfileInfoData.appendChild(divUserCity);
 
-    let divUserDate = document.createElement("div");
-    let labelDate = document.createElement("label");
-    labelDate.classList.add("main-label");
-    labelDate.innerHTML="Datum rodjenja: ";
-    divUserDate.appendChild(labelDate);
-    let labelDateValue = document.createElement("div");
-    // labelDateValue.innerHTML=user.userCV;
-    divUserDate.appendChild(labelDateValue); 
-    divUserProfileInfoData.appendChild(divUserDate);
+    let divUserDescription = document.createElement("div");
+    let labelDescription = document.createElement("label");
+    labelDescription.classList.add("main-label");
+    labelDescription.innerHTML="Opis kompanije: ";
+    divUserDescription.appendChild(labelDescription);
+    let labelDescriptionValue = document.createElement("div");
+    labelDescriptionValue.innerHTML=user.description;
+    divUserDescription.appendChild(labelDescriptionValue); 
+    divUserProfileInfoData.appendChild(divUserDescription);
 
-    divUserProfileInfo.appendChild(divUserProfileInfoData);
-    divUserProfile.appendChild(divUserProfileInfo);
+    parent.appendChild(divUserProfileInfoData);
+}
 
-    let userReceptiNaslov = document.createElement("h2");
-    userReceptiNaslov.classList.add("userReceptiNaslov");
-    userReceptiNaslov.innerHTML="Recepti";
-    divUserProfile.appendChild(userReceptiNaslov);
+export function drawNewKonkurs(parent:HTMLElement) : void{
+    let divNewKonkurs = document.createElement("div");
+    divNewKonkurs.classList.add("divNewKonkurs");
 
-    let divUserProfileRecepti = document.createElement("div");
-    divUserProfileRecepti.classList.add("divUserProfileRecepti");
-    divUserProfile.appendChild(divUserProfileRecepti);
+    let divJobInput = document.createElement("div");
+    divJobInput.classList.add("divJobInput");
 
-    parent.appendChild(divUserProfile);
-    return divUserProfileRecepti;
+    let jobLabel = document.createElement("label");
+    jobLabel.innerHTML = "Posao: ";
+    divJobInput.appendChild(jobLabel);
+
+    let jobInput = document.createElement("input");
+    jobInput.type="name";
+    jobInput.id="jobInput";
+    divJobInput.appendChild(jobInput);
+    divNewKonkurs.appendChild(divJobInput);
+
+    let divMoneyInput = document.createElement("div");
+    divMoneyInput.classList.add("divMoneyInput");
+
+    let moneyLabel = document.createElement("label");
+    moneyLabel.innerHTML = "Plata: ";
+    divMoneyInput.appendChild(moneyLabel);
+
+    let moneyInput = document.createElement("input");
+    moneyInput.type="name";
+    moneyInput.id="moneyInput";
+    divMoneyInput.appendChild(moneyInput);
+    divNewKonkurs.appendChild(divMoneyInput);
+
+    let divKonkursButton = document.createElement("div");
+    divKonkursButton.classList.add("divKonkursButton");
+
+    let konkursButton = document.createElement("button");
+    konkursButton.innerHTML = "Dodaj konkurs";
+    konkursButton.id = "newKonkursButton";
+    divKonkursButton.appendChild(konkursButton);
+    divNewKonkurs.appendChild(divKonkursButton);
+
+    parent.appendChild(divNewKonkurs);
 }

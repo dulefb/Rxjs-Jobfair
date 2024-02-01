@@ -1,8 +1,9 @@
 import { Observable, from, take, takeLast, map, toArray, mergeMap, filter, of } from "rxjs";
 import { User } from "../classes/user";
 import { removeChildren } from "./pocetnaEvents";
-import { userURL } from "./constants";
+import { konkursURL, userURL } from "./constants";
 import { Kompanija } from "../classes/kompanija";
+import { Konkurs } from "../classes/konkurs";
 
 export function postUser(user:any,label:string) : Observable<boolean | void>{
     // console.log(user);
@@ -71,7 +72,7 @@ export function getUserWithEmail(email:string,label:string) : Observable<void | 
     return from(user);
 }
 
-export function getUserWithEmailAndPassword(email:string,password:string) : Observable<User | Kompanija>{
+export function getUserWithEmailAndPassword(email:string,password:string) : Observable<any>{
     const user = fetch(userURL+"?email="+email+"&password="+password,{method:"GET"})
                     .then(response=>{
                         if(!response.ok){
@@ -99,6 +100,26 @@ export function deleteUser(email:string,label:string) : Observable<string>{
                     }).catch(err=>console.log(err));
     
     return from(userResp);
+}
+
+export function postKonkurs(newKonkurs:Konkurs) : Observable<DbResponse>{
+    let formBody = new URLSearchParams();
+    formBody.append('job',newKonkurs.job);
+    formBody.append('company',newKonkurs.company);
+    formBody.append('money',newKonkurs.money);
+
+    const resp = fetch(konkursURL,{
+        method:"POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+        body: formBody
+        })
+        .then(response=>{
+                return response.json();
+        }).catch(err=>console.log(err));
+
+    return from(resp);
 }
 
 function showError(error:any){

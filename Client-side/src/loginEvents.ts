@@ -33,9 +33,8 @@ export function setUpLogin(){
                 alert("Niste uneli ispravne podatke");
             }
             else{
-                sessionStorage.setItem("current-user",next.email);
-                console.log(next);
-                alert("Uspesna prijava.");
+                sessionStorage.setItem("current-user",JSON.stringify(next));
+                sessionStorage.setItem("current-user-label",next.skills===undefined?"KOMPANIJA":"KORISNIK");
                 document.location.reload();
             }
         });

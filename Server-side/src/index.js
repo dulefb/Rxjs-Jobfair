@@ -120,14 +120,9 @@ const server = http.createServer(async(req,res)=>{
             processRequestBody(req,async (dataObj)=>{
                 let dbResponse = await neo4jSession.run(`match (kompanija:KOMPANIJA{\
                     email:$email\
-                })-[:OBJAVLJUJE]->(konkurs:KONKURS{\
-                    job:$job,\
-                    company:$company\
-                })\
+                })-[:OBJAVLJUJE]->(konkurs:KONKURS)\
                 return konkurs`,{
-                    email:dataObj.email,
-                    job:dataObj.job,
-                    company:dataObj.company
+                    email:dataObj.email
                 });
                 if(dbResponse.records[0]!==undefined){
                     res.writeHead(200,'OK',headers);
@@ -149,8 +144,12 @@ const server = http.createServer(async(req,res)=>{
                     skills:queryData.skills
                 });
                 if(allData.records[0]!==undefined){
+                    let konkursArray = [];
+                    allData.records.forEach(value=>{
+                        konkursArray.push(value._fields[0].properties);
+                    });
                     res.writeHead(200,'OK',headers);
-                    res.write(JSON.stringify(allData.records));
+                    res.write(JSON.stringify(konkursArray));
                     res.end();
                 }
                 else{
@@ -269,12 +268,18 @@ const server = http.createServer(async(req,res)=>{
                 console.log(companyExists);
                 if(alreadyExists.records[0]!==undefined){
                     res.writeHead(404,'Error',headers);
-                    res.write('Konkurs za ovaj posao je vec obavljen');
+                    res.write(JSON.stringify({
+                        msg:'Konkurs za ovaj posao je vec obavljen',
+                        valid:false
+                    }));
                     res.end();
                 }
                 else if(companyExists.records[0]===undefined){
                     res.writeHead(404,'Error',headers);
-                    res.write('Kompanija ne postoji...');
+                    res.write(JSON.stringify({
+                        msg:'Kompanija ne postoji...',
+                        valid:false
+                    }));
                     res.end();
                 }
                 else{
@@ -290,7 +295,10 @@ const server = http.createServer(async(req,res)=>{
                         money:dataObj.money
                     });
                     res.writeHead(200,"OK",headers);
-                    res.write("Konkurs za posao je objavljen");
+                    res.write(JSON.stringify({
+                        msg:'Konkurs za posao je objavljen',
+                        valid:true
+                    }));
                     res.end();
                 }
             });
