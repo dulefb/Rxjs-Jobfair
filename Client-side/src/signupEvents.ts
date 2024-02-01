@@ -43,6 +43,20 @@ export function setUpSignin(control$:Subject<string>){
         takeUntil(control$)
     );
 
+    const city$ = fromEvent(document.querySelector("#signup-city"),"input").pipe(
+        debounceTime(200),
+        map((event: InputEvent) => (<HTMLInputElement>event.target).value),
+        takeUntil(control$)
+    );
+
+    const description$ = fromEvent(document.querySelector("#signup-description"),"input").pipe(
+        debounceTime(200),
+        map((event: InputEvent) => (<HTMLInputElement>event.target).value),
+        takeUntil(control$)
+    );
+
+    let selectedLabel = (<HTMLSelectElement>document.querySelector("#chooseSelect")).value;
+
     const combineValue$ = combineLatest([name$,lastname$,email$,password$,skill$,userCV$])
                             .pipe(
                                 takeUntil(control$)
@@ -59,7 +73,7 @@ export function setUpSignin(control$:Subject<string>){
     
     fromEvent(document.querySelector(".signupButton"),"click")
         .pipe(
-            switchMap(()=>getUserWithEmail(user.email)),
+            switchMap(()=>getUserWithEmail(user.email,selectedLabel)),
             delay(500)
         )
         .subscribe(next=>{
@@ -67,17 +81,17 @@ export function setUpSignin(control$:Subject<string>){
                 alert("Korisnik sa ovom email adresom vec postoji.Pokusajte drugu.");
             }
             else{
-                if(user.name===null || user.lastname===null || user.email===null || user.password===null || user.skills===null || user.userCV===null){
+                if(user.name===null || user.email===null || user.password===null){
                     alert("Morate da unesete sve podatke");
                 }
                 else{
-                    postUser(user)
+                    postUser(user,selectedLabel)
                         .subscribe(newUser=>{
                             if(newUser===true){
                                 alert("Uspesno registrovnje.");
                                 control$.next("Login complete...");
                                 control$.complete();
-                                getUserWithEmailAndPassword(user.email,user.password)
+                                getUserWithEmailAndPassword(user.email,user.password,selectedLabel)
                                     .subscribe(value=>{
                                         console.log(value);
                                         sessionStorage.setItem("current-user",value.email);

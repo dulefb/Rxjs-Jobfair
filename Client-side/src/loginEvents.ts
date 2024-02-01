@@ -25,10 +25,12 @@ export function setUpLogin(control$:Subject<string>){
             user.email=next[0];
             user.password=next[1];
         });
+    
+    let selectedLabel = (<HTMLSelectElement>document.querySelector("#chooseSelect")).value;
 
     fromEvent(document.querySelector("#btnLogin"),"click")
         .pipe(
-            switchMap(()=>getUserWithEmailAndPassword(user.email,user.password)),
+            switchMap(()=>getUserWithEmailAndPassword(user.email,user.password,selectedLabel)),
             delay(500)
         )
         .subscribe(next=>{

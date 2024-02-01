@@ -2,16 +2,26 @@ import { Observable, from, take, takeLast, map, toArray, mergeMap, filter } from
 import { User } from "../classes/user";
 import { removeChildren } from "./pocetnaEvents";
 import { userURL } from "./constants";
+import { Kompanija } from "../classes/kompanija";
 
-export function postUser(user:User,label:string) : Observable<boolean | void>{
+export function postUser(user:any,label:string) : Observable<boolean | void>{
     // console.log(user);
     let formBody = new URLSearchParams();
-    formBody.append('name',user.name);
-    formBody.append('last_name',user.lastname);
-    formBody.append('email',user.email);
-    formBody.append('password',user.password);
-    formBody.append('skills',user.skills);
-    formBody.append('userCV',user.userCV);
+    if(label==="KORISNIK"){
+        formBody.append('name',user.name);
+        formBody.append('last_name',user.lastname);
+        formBody.append('email',user.email);
+        formBody.append('password',user.password);
+        formBody.append('skills',user.skills);
+        formBody.append('userCV',user.userCV);
+    }
+    else{
+        formBody.append('name',user.name);
+        formBody.append('city',user.city);
+        formBody.append('email',user.email);
+        formBody.append('password',user.password);
+        formBody.append('description',user.description);
+    }
     const resp=fetch(userURL+"?label="+label,
                 {
                     method:"POST",

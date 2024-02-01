@@ -84,10 +84,67 @@ export function userFilter(){
 }
 
 export function drawSignup(parent_node:HTMLElement){
+
+    const selectDiv = document.createElement("div");
+    selectDiv.classList.add("selectDiv");
+
+    let chooseLabel = document.createElement("label");
+    chooseLabel.classList.add("chooseLabel");
+    chooseLabel.innerHTML="Izaberite ulogu:";
+    selectDiv.appendChild(chooseLabel);
+
+    let chooseSelect = document.createElement("select");
+    chooseSelect.classList.add("chooseSelect");
+    chooseSelect.id="chooseSelect";
+    
+    let selOption = document.createElement("option");
+    selOption.innerHTML="";
+    selOption.value="";
+    selOption.selected=true;
+    chooseSelect.appendChild(selOption);
+
+    selOption = document.createElement("option");
+    selOption.innerHTML="KORISNIK";
+    selOption.value="KORISNIK";
+    chooseSelect.appendChild(selOption);
+    
+    selOption = document.createElement("option");
+    selOption.innerHTML = "KOMPANIJA";
+    selOption.value="KOMPANIJA";
+    chooseSelect.appendChild(selOption);
+    selectDiv.appendChild(chooseSelect);
+    parent_node.appendChild(selectDiv);
+
+    //rest of signup
     const divSignup = document.createElement("div");
     divSignup.classList.add("divSignup");
 
-    //divSignup labele
+    //divSignup za korisnika ili kompaniju
+    selectDiv.onchange=()=>{
+        let selectValue = (<HTMLSelectElement>document.querySelector("#chooseSelect")).value;
+        removeChildren(document.querySelector(".divSignup"),document.querySelectorAll(".divSignup > div"));
+        if(selectValue==="KORISNIK"){
+            drawSignupKorisnik(divSignup);
+        }
+        if(selectValue==="KOMPANIJA"){
+            drawSignupKompanija(divSignup);
+        }
+    }
+    
+    parent_node.appendChild(divSignup);
+
+    let divSignupButton = document.createElement("div");
+    divSignupButton.classList.add("divSignupButton");
+
+    //odvojiti u loginEvents.ts i dodati event na button
+    let button = document.createElement("button");
+    button.classList.add("signupButton");
+    button.innerHTML="Kreiraj";
+    divSignupButton.appendChild(button);
+    parent_node.appendChild(divSignupButton);
+}
+
+export function drawSignupKorisnik(parent_node:HTMLElement){
     const divSignupLabels = document.createElement("div");
     divSignupLabels.classList.add("divSignupLabels");
 
@@ -107,19 +164,15 @@ export function drawSignup(parent_node:HTMLElement){
     passwordLabel.innerHTML="Lozinka:";
     divSignupLabels.appendChild(passwordLabel);
 
-    let cityLabel = document.createElement("label");
-    cityLabel.innerHTML="Grad:";
-    divSignupLabels.appendChild(cityLabel);
+    let skillsLabel = document.createElement("label");
+    skillsLabel.innerHTML="Oblast rada:";
+    divSignupLabels.appendChild(skillsLabel);
 
-    let dateLabel = document.createElement("label");
-    dateLabel.innerHTML="Datum rodjenja:";
-    divSignupLabels.appendChild(dateLabel);
+    let usercvLabel = document.createElement("label");
+    usercvLabel.innerHTML="Napisite vas CV:";
+    divSignupLabels.appendChild(usercvLabel);
 
-    let slikaLabel = document.createElement("label");
-    slikaLabel.innerHTML="Datum rodjenja:";
-    divSignupLabels.appendChild(slikaLabel);
-
-    divSignup.appendChild(divSignupLabels);
+    parent_node.appendChild(divSignupLabels);
 
     //divSignup inputs
 
@@ -157,20 +210,67 @@ export function drawSignup(parent_node:HTMLElement){
     cvInput.cols=36;
     divSignupInput.appendChild(cvInput);
 
-    divSignup.appendChild(divSignupInput);
+    parent_node.appendChild(divSignupInput);
+}
 
-    parent_node.appendChild(divSignup);
+export function drawSignupKompanija(parent_node:HTMLElement){
+    const divSignupLabels = document.createElement("div");
+    divSignupLabels.classList.add("divSignupLabels");
 
-    let divSignupButton = document.createElement("div");
-    divSignupButton.classList.add("divSignupButton");
+    let nameLabel = document.createElement("label");
+    nameLabel.innerHTML="Naziv:";
+    divSignupLabels.appendChild(nameLabel);
 
-    //odvojiti u loginEvents.ts i dodati event na button
-    let button = document.createElement("button");
-    button.classList.add("signupButton");
-    button.innerHTML="Kreiraj";
-    divSignupButton.appendChild(button);
+    let cityLabel = document.createElement("label");
+    cityLabel.innerHTML="Grad:";
+    divSignupLabels.appendChild(cityLabel);
 
-    parent_node.appendChild(divSignupButton);
+    let emailLabel = document.createElement("label");
+    emailLabel.innerHTML="E-mail:";
+    divSignupLabels.appendChild(emailLabel);
+
+    let passwordLabel = document.createElement("label");
+    passwordLabel.innerHTML="Lozinka:";
+    divSignupLabels.appendChild(passwordLabel);
+
+    let descriptionLabel = document.createElement("label");
+    descriptionLabel.innerHTML="Opisite kompaniju:";
+    divSignupLabels.appendChild(descriptionLabel);
+
+    parent_node.appendChild(divSignupLabels);
+
+    //divSignup inputs
+
+    let divSignupInput = document.createElement("div");
+    divSignupInput.classList.add("divSignupInput");
+
+    let nameInput = document.createElement("input");
+    nameInput.id="signup-name";
+    nameInput.type = "name";
+    divSignupInput.appendChild(nameInput);
+
+    let cityInput = document.createElement("input");
+    cityInput.id="signup-city";
+    cityInput.type = "name";
+    divSignupInput.appendChild(cityInput);
+
+    let emailInput = document.createElement("input");
+    emailInput.id="signup-email";
+    emailInput.type = "email";
+    divSignupInput.appendChild(emailInput);
+
+    let passwordInput = document.createElement("input");
+    passwordInput.id="signup-password";
+    passwordInput.type = "password";
+    divSignupInput.appendChild(passwordInput);
+
+    let descriptionInput = document.createElement("textarea");
+    descriptionInput.id="signup-description";
+    descriptionInput.rows=12;
+    descriptionInput.cols=36;
+    divSignupInput.appendChild(descriptionInput);
+
+    parent_node.appendChild(divSignupInput);
 }
 
 export function drawLogin(parent_node:HTMLElement){
