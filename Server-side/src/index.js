@@ -433,12 +433,18 @@ const server = http.createServer(async(req,res)=>{
                     email:queryData.email
                 });
                 res.writeHead(200,"OK",headers);
-                res.write('User deleted successfully');
+                res.write(JSON.stringify({
+                    msg:"User delete successfully.",
+                    valid:true
+                }));
                 res.end();
             }
             else{
-                res.writeHead(200,"OK",headers);
-                res.write('User deleted successfully');
+                res.writeHead(400,"Error",headers);
+                res.write(JSON.stringify({
+                    msg:"Invalid request...",
+                    valid:false
+                }));
                 res.end();
             }
         }

@@ -92,12 +92,7 @@ export function getUserWithEmailAndPassword(email:string,password:string) : Obse
 export function deleteUser(email:string,label:string) : Observable<string>{
     const userResp = fetch(userURL+"?email="+email+"&label="+label,{method:"DELETE"})
                     .then(response=>{
-                        if(!response.ok){
-                            return null;
-                        }
-                        else{
                             return response.json();
-                        }
                     }).catch(err=>console.log(err));
     
     return from(userResp);
