@@ -1,9 +1,10 @@
 import { Observable, from, take, takeLast, map, toArray, mergeMap, filter, of } from "rxjs";
 import { User } from "../classes/user";
 import { removeChildren } from "./pocetnaEvents";
-import { konkursURL, prijaviNaKonkursURL, userKonkursURL, userURL } from "./constants";
+import { konkursURL, prihvatiKonkursURL, prijaviNaKonkursURL, userKonkursURL, userURL } from "./constants";
 import { Kompanija } from "../classes/kompanija";
 import { Konkurs } from "../classes/konkurs";
+import { CompanyKonkurs } from "../classes/CompanyKonkurs";
 
 export function postUser(user:any,label:string) : Observable<boolean | void>{
     // console.log(user);
@@ -145,6 +146,43 @@ export function postPrijaviSeNaKonkurs(user:User,konkurs:Konkurs) : Observable<D
     formBody.append('userCV',user.userCV);
 
     const resp = fetch(prijaviNaKonkursURL+"?email="+user.email,{
+        method:"POST",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+        body: formBody
+        })
+        .then(response=>{
+            return response.json();
+        }).catch(err=>console.log(err));
+
+    return from(resp);
+}
+
+export function getCompanyKonkurs(email:string) : Observable<CompanyKonkurs[]>{
+
+    const resp = fetch(konkursURL+"?email="+email,{
+        method:"GET"
+        })
+        .then(response=>{
+            if(response.ok){
+                return response.json();
+            }
+            else{
+                return null;
+            }
+        }).catch(err=>console.log(err));
+
+    return from(resp);
+}
+
+export function postPrihvatiKonkurs(kompanijaEmail:string,korisnikEmail:string,konkurs:Konkurs) : Observable<DbResponse>{
+    let formBody = new URLSearchParams();
+    formBody.append('job',konkurs.job);
+    formBody.append('company',konkurs.company);
+    formBody.append('money',konkurs.money);
+
+    const resp = fetch(prihvatiKonkursURL+"?kompanijaEmail="+kompanijaEmail+"&korisnikEmail="+korisnikEmail,{
         method:"POST",
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'

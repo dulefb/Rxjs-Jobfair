@@ -63,7 +63,10 @@ const server = http.createServer(async(req,res)=>{
             res.writeHead(200,'OK',headers);
             res.end();
         }
-        
+        else if(rootPath[0]=='prihvati-konkurs'){
+            res.writeHead(200,'OK',headers);
+            res.end();
+        }
     }
     if(req.method.toLowerCase()==='get')
     {
@@ -117,16 +120,24 @@ const server = http.createServer(async(req,res)=>{
             }
         }
         else if(rootPath[0]==='konkurs'){
-            processRequestBody(req,async (dataObj)=>{
+            if(queryData.email){
                 let dbResponse = await neo4jSession.run(`match (kompanija:KOMPANIJA{\
                     email:$email\
-                })-[:OBJAVLJUJE]->(konkurs:KONKURS)\
-                return konkurs`,{
-                    email:dataObj.email
+                })-[:OBJAVLJUJE]->(konkurs:KONKURS),\
+                (korisnik:KORISNIK)-[:PRIJAVI_SE]->(konkurs)\
+                return korisnik,konkurs`,{
+                    email:queryData.email
                 });
                 if(dbResponse.records[0]!==undefined){
+                    let dataArray = [];
+                    dbResponse.records.forEach(value=>{
+                        dataArray.push({
+                            korisnik:value._fields[0].properties,
+                            konkurs:value._fields[1].properties
+                        });
+                    });
                     res.writeHead(200,'OK',headers);
-                    res.write(JSON.stringify(dbResponse.records));
+                    res.write(JSON.stringify(dataArray));
                     res.end();
                 }
                 else{
@@ -134,7 +145,7 @@ const server = http.createServer(async(req,res)=>{
                     res.write('Invalid request...');
                     res.end();
                 }
-            });
+            }
         }
         else if(rootPath[0]==='user-konkurs'){
             if(queryData.skills){
@@ -368,6 +379,39 @@ const server = http.createServer(async(req,res)=>{
             else{
                 res.writeHead(404,'Error',headers);
                 res.write('Invalid request...');
+                res.end();
+            }
+        }
+        else if(rootPath[0]==='prihvati-konkurs'){
+            if(queryData.kompanijaEmail && queryData.korisnikEmail){
+                processRequestBody(req,async (dataObj)=>{
+                    let acceptKonkurs = await neo4jSession.run(`match (korisnik:KORISNIK{email:$korisnikEmail}),\
+                    (kompanija:KOMPANIJA{email:$kompanijaEmail})\
+                    create (korisnik)-[:RADI_U{job:$job,money:$money}]->(kompanija)`,{
+                        kompanijaEmail:queryData.kompanijaEmail,
+                        korisnikEmail:queryData.korisnikEmail,
+                        job:dataObj.job,
+                        money:dataObj.money
+                    });
+
+                    let deleteKonkurs = await neo4jSession.run(`match (konkurs:KONKURS{\
+                    job:$job,\
+                    company:$company,\
+                    money:$money\
+                    })\
+                    detach delete konkurs`,{
+                        job:dataObj.job,
+                        company:dataObj.company,
+                        money:dataObj.money
+                    });
+                })
+            }
+            else{
+                res.writeHead(404,"Error",header)
+                res.write(JSON.stringify({
+                    msg:"Invalid request.",
+                    valid:false
+                }));
                 res.end();
             }
         }

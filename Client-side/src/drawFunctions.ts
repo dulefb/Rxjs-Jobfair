@@ -3,9 +3,10 @@ import { User } from "../classes/user";
 import { filter,Subject } from "rxjs";
 import { setUpLogin } from "./loginEvents";
 import { setUpSignin } from "./signupEvents";
-import {  addNewKonkursEvent, addUserKonkursEvent, removeChildren } from "./pocetnaEvents";
+import {  addCompanyKonkursEvent, addNewKonkursEvent, addUserKonkursEvent, removeChildren } from "./pocetnaEvents";
 import { Kompanija } from "../classes/kompanija";
 import { Konkurs } from "../classes/konkurs";
+import { CompanyKonkurs } from "../classes/CompanyKonkurs";
 
 function addLinkToClassElement(class_element:string,href:string,class_name:string,text:string,id_value:string=null) : void{
     const link=document.createElement("a");
@@ -535,4 +536,42 @@ export function drawViewKonkurse(parent:HTMLElement,array:Konkurs[]){
     });
 
     parent.appendChild(divUserViewKonkurs);
+}
+
+export function drawViewCompanyKonkurse(parent:HTMLElement,array:CompanyKonkurs[]){
+    let divKompanijaViewKonkurs = document.createElement("div");
+    divKompanijaViewKonkurs.classList.add("divKompanijaViewKonkurs");
+
+    array.forEach(kon=>{
+        let divKonkurs = document.createElement("div");
+        divKonkurs.classList.add("divKonkurs");
+
+        let userNameLabel = document.createElement("label");
+        userNameLabel.innerHTML=kon.korisnik.name+" "+kon.korisnik.lastname;
+        divKonkurs.appendChild(userNameLabel);
+
+        let userCVdiv = document.createElement("div");
+        userCVdiv.innerHTML=kon.korisnik.userCV;
+        divKonkurs.appendChild(userCVdiv);
+
+        let jobLabel = document.createElement("label");
+        jobLabel.innerHTML="Posao: "+kon.konkurs.job;
+        divKonkurs.appendChild(jobLabel);
+
+        let companyLabel = document.createElement("label");
+        companyLabel.innerHTML = "Kompanija: "+kon.konkurs.company;
+        divKonkurs.appendChild(companyLabel);
+
+        let moneyLabel = document.createElement("label");
+        moneyLabel.innerHTML="Plata: "+kon.konkurs.money;
+        divKonkurs.appendChild(moneyLabel);
+
+        let buttonKonkurs = document.createElement("button");
+        addCompanyKonkursEvent(buttonKonkurs,<Kompanija>JSON.parse(sessionStorage.getItem("current-user")),kon);
+        buttonKonkurs.innerHTML="Prihvati";
+        divKonkurs.appendChild(buttonKonkurs);
+        divKompanijaViewKonkurs.appendChild(divKonkurs);
+    });
+
+    parent.appendChild(divKompanijaViewKonkurs);
 }

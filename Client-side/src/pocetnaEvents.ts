@@ -1,7 +1,9 @@
-import { getUserKonkurs, postKonkurs, postPrijaviSeNaKonkurs } from "./dbServices";
+import { getCompanyKonkurs, getUserKonkurs, postKonkurs, postPrihvatiKonkurs, postPrijaviSeNaKonkurs } from "./dbServices";
 import { Konkurs } from "../classes/konkurs";
 import { User } from "../classes/user";
-import { drawViewKonkurse } from "./drawFunctions";
+import { drawViewCompanyKonkurse, drawViewKonkurse } from "./drawFunctions";
+import { Kompanija } from "../classes/kompanija";
+import { CompanyKonkurs } from "../classes/CompanyKonkurs";
 
 
 export function removeChildren(parent:Node,child:NodeListOf<Element>){
@@ -88,5 +90,29 @@ export function viewUserKonkurs(){
     getUserKonkurs((JSON.parse(sessionStorage.getItem("current-user")).skills))
         .subscribe(next=>{
             drawViewKonkurse(parent,next);
+        });
+}
+
+export function addCompanyKonkursEvent(button:HTMLButtonElement,kompanija:Kompanija,companyKonkurs:CompanyKonkurs){
+    button.onclick=()=>{
+        postPrihvatiKonkurs(kompanija.email,companyKonkurs.korisnik.email,companyKonkurs.konkurs)
+            .subscribe(next=>{
+                if(next.valid){
+                    alert(next.msg);
+                    document.location.reload();
+                }
+                else{
+                    alert(next.msg);
+                }
+            })
+    }
+}
+
+export function viewKompanijaKonkurs(){
+    let parent = <HTMLElement>document.querySelector(".middle");
+    console.log(JSON.parse(sessionStorage.getItem("current-user")).email);
+    getCompanyKonkurs(JSON.parse(sessionStorage.getItem("current-user")).email)
+        .subscribe(next=>{
+            drawViewCompanyKonkurse(parent,next);
         });
 }

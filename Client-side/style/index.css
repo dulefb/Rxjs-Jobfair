@@ -192,6 +192,16 @@
     background-color: #3498DB;
 }
 
+.divKonkurs{
+    display: flex;
+    flex-direction: column;
+    padding-left: 2px;
+    padding-right: 2px;
+    padding-top: 5px;
+    padding-right: 5px;
+    border: 1.5px solid black;
+}
+
 @media only screen and (max-width: 768px) {
     .header a{
         font-size:medium;
