@@ -3,8 +3,9 @@ import { User } from "../classes/user";
 import { filter,Subject } from "rxjs";
 import { setUpLogin } from "./loginEvents";
 import { setUpSignin } from "./signupEvents";
-import {  addNewKonkursEvent, removeChildren } from "./pocetnaEvents";
+import {  addNewKonkursEvent, addUserKonkursEvent, removeChildren } from "./pocetnaEvents";
 import { Kompanija } from "../classes/kompanija";
+import { Konkurs } from "../classes/konkurs";
 
 function addLinkToClassElement(class_element:string,href:string,class_name:string,text:string,id_value:string=null) : void{
     const link=document.createElement("a");
@@ -504,4 +505,34 @@ export function drawNewKonkurs(parent:HTMLElement) : void{
     divNewKonkurs.appendChild(divKonkursButton);
 
     parent.appendChild(divNewKonkurs);
+}
+
+export function drawViewKonkurse(parent:HTMLElement,array:Konkurs[]){
+    let divUserViewKonkurs = document.createElement("div");
+    divUserViewKonkurs.classList.add("divUserViewKonkurs");
+
+    array.forEach(kon=>{
+        let divKonkurs = document.createElement("div");
+        divKonkurs.classList.add("divKonkurs");
+
+        let jobLabel = document.createElement("label");
+        jobLabel.innerHTML="Posao: "+kon.job;
+        divKonkurs.appendChild(jobLabel);
+
+        let companyLabel = document.createElement("label");
+        companyLabel.innerHTML = "Kompanija: "+kon.company;
+        divKonkurs.appendChild(companyLabel);
+
+        let moneyLabel = document.createElement("label");
+        moneyLabel.innerHTML="Plata: "+kon.money;
+        divKonkurs.appendChild(moneyLabel);
+
+        let buttonKonkurs = document.createElement("button");
+        addUserKonkursEvent(buttonKonkurs,<User>JSON.parse(sessionStorage.getItem("current-user")),kon);
+        buttonKonkurs.innerHTML="Prijavi se";
+        divKonkurs.appendChild(buttonKonkurs);
+        divUserViewKonkurs.appendChild(divKonkurs);
+    });
+
+    parent.appendChild(divUserViewKonkurs);
 }

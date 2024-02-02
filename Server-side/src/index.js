@@ -139,7 +139,7 @@ const server = http.createServer(async(req,res)=>{
         else if(rootPath[0]==='user-konkurs'){
             if(queryData.skills){
                 let allData = await neo4jSession.run(`match(konkurs:KONKURS)\
-                where konkurs.job contains $skills
+                where toLower(konkurs.job) contains $skills
                 return konkurs`,{
                     skills:queryData.skills
                 });
@@ -306,32 +306,62 @@ const server = http.createServer(async(req,res)=>{
         else if(rootPath[0]==='prijavi-na-konkurs'){
             if(queryData.email){
                 processRequestBody(req,async (dataObj)=>{
-                    let dbResponse = await neo4jSession.run(`match (user:KORISNIK{\
+                    let alreadyExists = await neo4jSession.run(`match (user:KORISNIK{\
                     email:$email\
-                    }),\
+                    })-[:PRIJAVI_SE]->\
                     (konkurs:KONKURS{\
                     job:$job,\
                     company:$company,\
                     money:$money\
                     })\
-                    create (user)-[:PRIJAVI_SE{userCV:$userCV}]->(konkurs)\
-                    return user.email as email,konkurs.job as job`,{
+                    return user`,{
                         email:queryData.email,
                         job:dataObj.job,
                         company:dataObj.company,
-                        money:dataObj.money,
-                        userCV:dataObj.userCV
+                        money:dataObj.money
                     });
-
-                    if(dbResponse.records[0]!==undefined){
-                        res.writeHead(200,"OK",headers);
-                        res.write("Prijava na konkurs je uspesna...");
+                    if(alreadyExists.records[0]!==undefined){
+                        res.writeHead(404,'Error',headers);
+                        res.write(JSON.stringify({
+                            msg:'Vec ste prijavljeni na ovaj konkurs.',
+                            valid:false
+                        }));
                         res.end();
                     }
                     else{
-                        res.writeHead(404,'Error',headers);
-                        res.write('Invalid request...');
-                        res.end();
+                        let dbResponse = await neo4jSession.run(`match (user:KORISNIK{\
+                        email:$email\
+                        }),\
+                        (konkurs:KONKURS{\
+                        job:$job,\
+                        company:$company,\
+                        money:$money\
+                        })\
+                        create (user)-[:PRIJAVI_SE{userCV:$userCV}]->(konkurs)\
+                        return user.email as email,konkurs.job as job`,{
+                            email:queryData.email,
+                            job:dataObj.job,
+                            company:dataObj.company,
+                            money:dataObj.money,
+                            userCV:dataObj.userCV
+                        });
+
+                        if(dbResponse.records[0]!==undefined){
+                            res.writeHead(200,"OK",headers);
+                            res.write(JSON.stringify({
+                                msg:"Prijava na konkurs je uspesna...",
+                                valid:true
+                            }));
+                            res.end();
+                        }
+                        else{
+                            res.writeHead(404,'Error',headers);
+                            res.write(JSON.stringify({
+                                msg:'Invalid request.',
+                                valid:false
+                            }));
+                            res.end();
+                        }
                     }
                 });
             }

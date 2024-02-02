@@ -1,7 +1,7 @@
-import { fromEvent, map, switchMap, scan, take, Observable,zip, from, Subject, combineLatest, takeUntil, forkJoin, delay, filter, debounceTime } from "rxjs";
-import { numberOfTakes } from "./constants";
-import { postKonkurs } from "./dbServices";
+import { getUserKonkurs, postKonkurs, postPrijaviSeNaKonkurs } from "./dbServices";
 import { Konkurs } from "../classes/konkurs";
+import { User } from "../classes/user";
+import { drawViewKonkurse } from "./drawFunctions";
 
 
 export function removeChildren(parent:Node,child:NodeListOf<Element>){
@@ -65,4 +65,28 @@ export function addNewKonkursEvent(){
                 })
         }
     }
+}
+
+export function addUserKonkursEvent(button:HTMLButtonElement,user:User,konkurs:Konkurs){
+    button.onclick=()=>{
+        postPrijaviSeNaKonkurs(user,konkurs)
+            .subscribe(next=>{
+                if(next.valid){
+                    alert(next.msg);
+                    document.location.reload();
+                }
+                else{
+                    alert(next.msg);
+                }
+            })
+    }
+}
+
+export function viewUserKonkurs(){
+    let parent = <HTMLElement>document.querySelector(".middle");
+    console.log(JSON.parse(sessionStorage.getItem("current-user")).skills);
+    getUserKonkurs((JSON.parse(sessionStorage.getItem("current-user")).skills))
+        .subscribe(next=>{
+            drawViewKonkurse(parent,next);
+        });
 }
