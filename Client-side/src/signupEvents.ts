@@ -48,7 +48,7 @@ export function setUpSignin(){
                                     }
                                     else{
                                         sessionStorage.setItem("current-user-label",selectedLabel);
-                                        sessionStorage.setItem("current-user",selectedLabel==="KORISNIK" ? user.email : kompanija.email);
+                                        sessionStorage.setItem("current-user",selectedLabel==="KORISNIK" ? JSON.stringify(user) : JSON.stringify(kompanija));
                                         alert('Uspesno ste registrovani.');
                                         document.location.reload();
                                     }

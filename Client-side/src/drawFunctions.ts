@@ -87,6 +87,7 @@ export function userFilter(){
     const profil = <HTMLElement>document.querySelector("a[href='#profil']");
     if(profil!==null){
         profil.onclick=()=>{
+            removeChildren(document.querySelector(".middle"),document.querySelectorAll(".middle > div"));
             drawUserProfile(currentUser);
         }
     }

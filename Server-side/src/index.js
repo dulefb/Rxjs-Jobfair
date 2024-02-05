@@ -101,7 +101,7 @@ const server = http.createServer(async(req,res)=>{
                         email:queryData.email,
                         password:queryData.password
                     });
-                    if(dbResponse){
+                    if(dbResponse.records.length>0){
                         res.writeHead(200,'OK',headers);
                         res.write(JSON.stringify(dbResponse.records[0]._fields[0].properties));
                         res.end();
